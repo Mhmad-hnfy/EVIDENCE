@@ -111,7 +111,12 @@ export default function Doctors() {
               </div>
 
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300 text-lg w-full sm:w-auto text-center flex justify-center items-center gap-2">
+                <a
+                  href={`https://wa.me/${doctor.whatsapp ? doctor.whatsapp.replace(/[^0-9]/g, "") : ""}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300 text-lg w-full sm:w-auto text-center flex justify-center items-center gap-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -125,7 +130,7 @@ export default function Doctors() {
                     />
                   </svg>
                   احجز موعدك الآن
-                </button>
+                </a>
                 <a
                   href={`https://wa.me/${doctor.whatsapp ? doctor.whatsapp.replace(/[^0-9]/g, "") : ""}`}
                   target="_blank"

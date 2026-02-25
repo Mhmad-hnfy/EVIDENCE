@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -25,9 +26,13 @@ export default function Hero() {
             <div className="flex lg:flex-1">
               <a href="#" className="-m-1.5 p-1.5 flex items-center gap-2">
                 <span className="sr-only">EVIDENCE Clinic</span>
-                <span className="text-3xl font-black text-white tracking-widest">
-                  EVIDENCE
-                </span>
+                <Image
+                  src="/logo.png"
+                  alt="EVIDENCE Clinic Logo"
+                  width={120}
+                  height={40}
+                  className="h-20 w-auto object-contain"
+                />
               </a>
             </div>
             <div className="flex lg:hidden">
@@ -71,11 +76,15 @@ export default function Hero() {
               className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-gray-900 p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10"
             >
               <div className="flex items-center justify-between">
-                <a href="#" className="-m-1.5 p-1.5">
+                <a href="#" className="-m-1.5 p-1.5 flex items-center gap-2">
                   <span className="sr-only">EVIDENCE Clinic</span>
-                  <span className="text-2xl font-bold text-white tracking-wider">
-                    EVIDENCE
-                  </span>
+                  <Image
+                    src="/logo.png"
+                    alt="EVIDENCE Clinic Logo"
+                    width={100}
+                    height={32}
+                    className="h-10 w-auto object-contain"
+                  />
                 </a>
                 <button
                   type="button"
