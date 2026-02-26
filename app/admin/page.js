@@ -30,6 +30,11 @@ export default function AdminDashboard() {
     editId: null,
   });
   const [newImage, setNewImage] = useState("");
+  const [loading, setLoading] = useState({
+    services: false,
+    doctors: false,
+    images: false,
+  });
 
   useEffect(() => {
     // Load initial data from Supabase
@@ -79,61 +84,78 @@ export default function AdminDashboard() {
   // --- Services handlers ---
   const handleAddOrUpdateService = async (e) => {
     e.preventDefault();
-    if (newService.isEditing) {
-      // Update existing
-      const { error } = await supabase
-        .from("services")
-        .update({
-          title: newService.title,
-          description: newService.description,
-          icon: newService.icon,
-        })
-        .eq("id", newService.editId);
-
-      if (!error) {
-        setServices(
-          services.map((s) =>
-            s.id === newService.editId
-              ? {
-                  ...s,
-                  title: newService.title,
-                  description: newService.description,
-                  icon: newService.icon,
-                }
-              : s,
-          ),
-        );
-        alert("تم تحديث الخدمة بنجاح");
-      } else {
-        alert("حدث خطأ أثناء تحديث الخدمة");
-      }
-    } else {
-      // Add new
-      const { data, error } = await supabase
-        .from("services")
-        .insert([
-          {
+    setLoading((prev) => ({ ...prev, services: true }));
+    try {
+      if (newService.isEditing) {
+        // Update existing
+        const { error } = await supabase
+          .from("services")
+          .update({
             title: newService.title,
             description: newService.description,
             icon: newService.icon,
-          },
-        ])
-        .select();
+          })
+          .eq("id", newService.editId);
 
-      if (!error && data) {
-        setServices([...data, ...services]);
-        alert("تم إضافة الخدمة بنجاح");
+        if (!error) {
+          setServices(
+            services.map((s) =>
+              s.id === newService.editId
+                ? {
+                    ...s,
+                    title: newService.title,
+                    description: newService.description,
+                    icon: newService.icon,
+                  }
+                : s,
+            ),
+          );
+          alert("تم تحديث الخدمة بنجاح");
+          setNewService({
+            title: "",
+            description: "",
+            icon: "",
+            isEditing: false,
+            editId: null,
+          });
+        } else {
+          console.error("Error updating service:", error);
+          alert("حدث خطأ أثناء تحديث الخدمة: " + error.message);
+        }
       } else {
-        alert("حدث خطأ أثناء الإضافة");
+        // Add new
+        const { data, error } = await supabase
+          .from("services")
+          .insert([
+            {
+              title: newService.title,
+              description: newService.description,
+              icon: newService.icon,
+            },
+          ])
+          .select();
+
+        if (!error && data) {
+          setServices([...data, ...services]);
+          alert("تم إضافة الخدمة بنجاح");
+          setNewService({
+            title: "",
+            description: "",
+            icon: "",
+            isEditing: false,
+            editId: null,
+          });
+        } else {
+          console.error("Error adding service:", error);
+          alert("حدث خطأ أثناء الإضافة: " + (error?.message || "فشل الاتصال"));
+        }
       }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("حدث خطأ غير متوقع");
+    } finally {
+      setLoading((prev) => ({ ...prev, services: false }));
     }
-    setNewService({
-      title: "",
-      description: "",
-      icon: "",
-      isEditing: false,
-      editId: null,
-    });
   };
 
   const handleEditService = (service) => {
@@ -171,42 +193,12 @@ export default function AdminDashboard() {
   // --- Doctors handlers ---
   const handleAddOrUpdateDoctor = async (e) => {
     e.preventDefault();
-    if (newDoctor.isEditing) {
-      const { error } = await supabase
-        .from("doctors")
-        .update({
-          name: newDoctor.name,
-          title: newDoctor.title,
-          image: newDoctor.image,
-          experience: newDoctor.experience,
-          whatsapp: newDoctor.whatsapp,
-          description1: newDoctor.description1,
-          description2: newDoctor.description2,
-        })
-        .eq("id", newDoctor.editId);
-
-      if (!error) {
-        setDoctors(
-          doctors.map((d) =>
-            d.id === newDoctor.editId
-              ? {
-                  ...newDoctor,
-                  id: d.id,
-                  isEditing: undefined,
-                  editId: undefined,
-                }
-              : d,
-          ),
-        );
-        alert("تم تحديث الطبيب بنجاح");
-      } else {
-        alert("حدث خطأ أثناء التحديث");
-      }
-    } else {
-      const { data, error } = await supabase
-        .from("doctors")
-        .insert([
-          {
+    setLoading((prev) => ({ ...prev, doctors: true }));
+    try {
+      if (newDoctor.isEditing) {
+        const { error } = await supabase
+          .from("doctors")
+          .update({
             name: newDoctor.name,
             title: newDoctor.title,
             image: newDoctor.image,
@@ -214,28 +206,79 @@ export default function AdminDashboard() {
             whatsapp: newDoctor.whatsapp,
             description1: newDoctor.description1,
             description2: newDoctor.description2,
-          },
-        ])
-        .select();
+          })
+          .eq("id", newDoctor.editId);
 
-      if (!error && data) {
-        setDoctors([...data, ...doctors]);
-        alert("تم إضافة الطبيب بنجاح");
+        if (!error) {
+          setDoctors(
+            doctors.map((d) =>
+              d.id === newDoctor.editId
+                ? {
+                    ...newDoctor,
+                    id: d.id,
+                    isEditing: undefined,
+                    editId: undefined,
+                  }
+                : d,
+            ),
+          );
+          alert("تم تحديث الطبيب بنجاح");
+          setNewDoctor({
+            name: "",
+            title: "",
+            image: "",
+            experience: "",
+            whatsapp: "",
+            description1: "",
+            description2: "",
+            isEditing: false,
+            editId: null,
+          });
+        } else {
+          console.error("Error updating doctor:", error);
+          alert("حدث خطأ أثناء التحديث: " + error.message);
+        }
       } else {
-        alert("حدث خطأ أثناء الإضافة");
+        const { data, error } = await supabase
+          .from("doctors")
+          .insert([
+            {
+              name: newDoctor.name,
+              title: newDoctor.title,
+              image: newDoctor.image,
+              experience: newDoctor.experience,
+              whatsapp: newDoctor.whatsapp,
+              description1: newDoctor.description1,
+              description2: newDoctor.description2,
+            },
+          ])
+          .select();
+
+        if (!error && data) {
+          setDoctors([...data, ...doctors]);
+          alert("تم إضافة الطبيب بنجاح");
+          setNewDoctor({
+            name: "",
+            title: "",
+            image: "",
+            experience: "",
+            whatsapp: "",
+            description1: "",
+            description2: "",
+            isEditing: false,
+            editId: null,
+          });
+        } else {
+          console.error("Error adding doctor:", error);
+          alert("حدث خطأ أثناء الإضافة: " + (error?.message || "فشل الاتصال"));
+        }
       }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("حدث خطأ غير متوقع");
+    } finally {
+      setLoading((prev) => ({ ...prev, doctors: false }));
     }
-    setNewDoctor({
-      name: "",
-      title: "",
-      image: "",
-      experience: "",
-      whatsapp: "",
-      description1: "",
-      description2: "",
-      isEditing: false,
-      editId: null,
-    });
   };
 
   const handleEditDoctor = (doctor) => {
@@ -279,18 +322,27 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!newImage) return;
 
-    const { data, error } = await supabase
-      .from("gallery_images")
-      .insert([{ image_url: newImage }])
-      .select();
+    setLoading((prev) => ({ ...prev, images: true }));
+    try {
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .insert([{ image_url: newImage }])
+        .select();
 
-    if (!error && data) {
-      // Re-fetch images or append the new url to state to maintain compatibility with existing mapping structure
-      setImages([data[0].image_url, ...images]);
-      setNewImage("");
-      alert("تم إضافة الصورة بنجاح");
-    } else {
-      alert("حدث خطأ أثناء الإضافة");
+      if (!error && data) {
+        // Re-fetch images or append the new url to state to maintain compatibility with existing mapping structure
+        setImages([data[0].image_url, ...images]);
+        setNewImage("");
+        alert("تم إضافة الصورة بنجاح");
+      } else {
+        console.error("Error adding image:", error);
+        alert("حدث خطأ أثناء الإضافة: " + (error?.message || "فشل الاتصال"));
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("حدث خطأ غير متوقع");
+    } finally {
+      setLoading((prev) => ({ ...prev, images: false }));
     }
   };
 
@@ -441,9 +493,38 @@ export default function AdminDashboard() {
                 )}
                 <button
                   type="submit"
-                  className={`${newService.isEditing ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"} text-white px-6 py-2 rounded-lg font-medium transition`}
+                  disabled={loading.services}
+                  className={`${newService.isEditing ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"} text-white px-6 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
                 >
-                  {newService.isEditing ? "حفظ التعديلات" : "إضافة خدمة"}
+                  {loading.services ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      جاري الحفظ...
+                    </>
+                  ) : newService.isEditing ? (
+                    "حفظ التعديلات"
+                  ) : (
+                    "إضافة خدمة"
+                  )}
                 </button>
               </div>
             </form>
@@ -735,9 +816,38 @@ export default function AdminDashboard() {
                 )}
                 <button
                   type="submit"
-                  className={`${newDoctor.isEditing ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"} text-white px-6 py-2 rounded-lg font-medium transition`}
+                  disabled={loading.doctors}
+                  className={`${newDoctor.isEditing ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"} text-white px-6 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
                 >
-                  {newDoctor.isEditing ? "حفظ التعديلات" : "إضافة طبيب"}
+                  {loading.doctors ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      جاري الحفظ...
+                    </>
+                  ) : newDoctor.isEditing ? (
+                    "حفظ التعديلات"
+                  ) : (
+                    "إضافة طبيب"
+                  )}
                 </button>
               </div>
             </form>
@@ -931,9 +1041,36 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition w-full md:w-auto"
+                    disabled={loading.images}
+                    className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    إضافة صورة
+                    {loading.images ? (
+                      <>
+                        <svg
+                          className="animate-spin h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        جاري الإضافة...
+                      </>
+                    ) : (
+                      "إضافة صورة"
+                    )}
                   </button>
                 </div>
               </div>
