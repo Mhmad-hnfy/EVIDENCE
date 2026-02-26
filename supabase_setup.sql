@@ -20,6 +20,8 @@ CREATE TABLE public.doctors (
     whatsapp TEXT,
     description1 TEXT NOT NULL,
     description2 TEXT,
+    facebook TEXT,
+    instagram TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

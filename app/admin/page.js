@@ -26,6 +26,8 @@ export default function AdminDashboard() {
     whatsapp: "",
     description1: "",
     description2: "",
+    facebook: "",
+    instagram: "",
     isEditing: false,
     editId: null,
   });
@@ -206,6 +208,8 @@ export default function AdminDashboard() {
             whatsapp: newDoctor.whatsapp,
             description1: newDoctor.description1,
             description2: newDoctor.description2,
+            facebook: newDoctor.facebook,
+            instagram: newDoctor.instagram,
           })
           .eq("id", newDoctor.editId);
 
@@ -231,6 +235,8 @@ export default function AdminDashboard() {
             whatsapp: "",
             description1: "",
             description2: "",
+            facebook: "",
+            instagram: "",
             isEditing: false,
             editId: null,
           });
@@ -250,6 +256,8 @@ export default function AdminDashboard() {
               whatsapp: newDoctor.whatsapp,
               description1: newDoctor.description1,
               description2: newDoctor.description2,
+              facebook: newDoctor.facebook,
+              instagram: newDoctor.instagram,
             },
           ])
           .select();
@@ -265,6 +273,8 @@ export default function AdminDashboard() {
             whatsapp: "",
             description1: "",
             description2: "",
+            facebook: "",
+            instagram: "",
             isEditing: false,
             editId: null,
           });
@@ -286,6 +296,8 @@ export default function AdminDashboard() {
       ...doctor,
       whatsapp: doctor.whatsapp || "",
       description2: doctor.description2 || "",
+      facebook: doctor.facebook || "",
+      instagram: doctor.instagram || "",
       isEditing: true,
       editId: doctor.id,
     });
@@ -312,6 +324,8 @@ export default function AdminDashboard() {
       whatsapp: "",
       description1: "",
       description2: "",
+      facebook: "",
+      instagram: "",
       isEditing: false,
       editId: null,
     });
@@ -450,19 +464,8 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  الأيقونة (إيموجي)
-                </label>
-                <input
-                  required
-                  type="text"
-                  value={newService.icon}
-                  onChange={(e) =>
-                    setNewService({ ...newService, icon: e.target.value })
-                  }
-                  className="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="مثال: 🦷"
-                />
+                
+                
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -677,6 +680,36 @@ export default function AdminDashboard() {
                   }
                   className="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="201000000000"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  رابط فيسبوك
+                </label>
+                <input
+                  type="url"
+                  dir="ltr"
+                  value={newDoctor.facebook}
+                  onChange={(e) =>
+                    setNewDoctor({ ...newDoctor, facebook: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://facebook.com/..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  رابط انستجرام
+                </label>
+                <input
+                  type="url"
+                  dir="ltr"
+                  value={newDoctor.instagram}
+                  onChange={(e) =>
+                    setNewDoctor({ ...newDoctor, instagram: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://instagram.com/..."
                 />
               </div>
 

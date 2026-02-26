@@ -3,13 +3,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 
 const initialServices = [
-  {
-    id: 1,
-    title: "زراعة الأسنان",
-    description:
-      "استعادة ابتسامتك الطبيعية زراعة أسنان دائمة وآمنة باستخدام أحدث التقنيات.",
-    icon: "🦷",
-  },
+  
   {
     id: 2,
     title: "تبييض الأسنان",
@@ -100,9 +94,7 @@ export default function Services() {
             >
               <div className="absolute top-0 right-0 w-full h-1 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right"></div>
 
-              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
-                {service.icon || "🦷"}
-              </div>
+              
 
               <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
                 {service.title}
