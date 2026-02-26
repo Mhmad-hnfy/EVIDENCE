@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabaseClient";
 
 const initialDoctors = [
   {
@@ -21,17 +22,20 @@ export default function Doctors() {
   const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
-    const storedDoctors = localStorage.getItem("evidence_doctors");
-    if (storedDoctors) {
-      try {
-        setDoctors(JSON.parse(storedDoctors));
-      } catch (e) {
+    const fetchDoctors = async () => {
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        setDoctors(data);
+      } else {
         setDoctors(initialDoctors);
       }
-    } else {
-      setDoctors(initialDoctors);
-      localStorage.setItem("evidence_doctors", JSON.stringify(initialDoctors));
-    }
+    };
+
+    fetchDoctors();
   }, []);
 
   if (doctors.length === 0) return null;

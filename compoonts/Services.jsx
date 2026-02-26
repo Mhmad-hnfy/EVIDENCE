@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabaseClient";
 
 const initialServices = [
   {
@@ -50,20 +51,20 @@ export default function Services() {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    const storedServices = localStorage.getItem("evidence_services");
-    if (storedServices) {
-      try {
-        setServices(JSON.parse(storedServices));
-      } catch (e) {
+    const fetchServices = async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        setServices(data);
+      } else {
         setServices(initialServices);
       }
-    } else {
-      setServices(initialServices);
-      localStorage.setItem(
-        "evidence_services",
-        JSON.stringify(initialServices),
-      );
-    }
+    };
+
+    fetchServices();
   }, []);
 
   return (

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabaseClient";
 
 function Imgs() {
   const defaultImages = [
@@ -15,17 +16,20 @@ function Imgs() {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    const storedImgs = localStorage.getItem("evidence_images");
-    if (storedImgs) {
-      try {
-        setImages(JSON.parse(storedImgs));
-      } catch (e) {
+    const fetchImages = async () => {
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        setImages(data.map((img) => img.image_url));
+      } else {
         setImages(defaultImages);
       }
-    } else {
-      setImages(defaultImages);
-      localStorage.setItem("evidence_images", JSON.stringify(defaultImages));
-    }
+    };
+
+    fetchImages();
   }, []);
 
   useEffect(() => {

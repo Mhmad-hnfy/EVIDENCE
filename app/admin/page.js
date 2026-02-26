@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/utils/supabaseClient";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("services");
@@ -31,15 +32,34 @@ export default function AdminDashboard() {
   const [newImage, setNewImage] = useState("");
 
   useEffect(() => {
-    // Load initial data
-    const s = localStorage.getItem("evidence_services");
-    if (s) setServices(JSON.parse(s));
+    // Load initial data from Supabase
+    const fetchServices = async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data) setServices(data);
+    };
 
-    const d = localStorage.getItem("evidence_doctors");
-    if (d) setDoctors(JSON.parse(d));
+    const fetchDoctors = async () => {
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data) setDoctors(data);
+    };
 
-    const i = localStorage.getItem("evidence_images");
-    if (i) setImages(JSON.parse(i));
+    const fetchImages = async () => {
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data) setImages(data.map((img) => img.image_url)); // Assuming we just want URLs for compatibility
+    };
+
+    fetchServices();
+    fetchDoctors();
+    fetchImages();
   }, []);
 
   // --- Utility: Convert File to Base64 ---
@@ -57,43 +77,55 @@ export default function AdminDashboard() {
   };
 
   // --- Services handlers ---
-  const handleAddOrUpdateService = (e) => {
+  const handleAddOrUpdateService = async (e) => {
     e.preventDefault();
     if (newService.isEditing) {
       // Update existing
-      const updatedServices = services.map((s) =>
-        s.id === newService.editId
-          ? {
-              ...s,
-              title: newService.title,
-              description: newService.description,
-              icon: newService.icon,
-            }
-          : s,
-      );
-      setServices(updatedServices);
-      localStorage.setItem(
-        "evidence_services",
-        JSON.stringify(updatedServices),
-      );
-      alert("تم تحديث الخدمة بنجاح");
-    } else {
-      // Add new
-      const updatedServices = [
-        ...services,
-        {
+      const { error } = await supabase
+        .from("services")
+        .update({
           title: newService.title,
           description: newService.description,
           icon: newService.icon,
-          id: Date.now(),
-        },
-      ];
-      setServices(updatedServices);
-      localStorage.setItem(
-        "evidence_services",
-        JSON.stringify(updatedServices),
-      );
-      alert("تم إضافة الخدمة بنجاح");
+        })
+        .eq("id", newService.editId);
+
+      if (!error) {
+        setServices(
+          services.map((s) =>
+            s.id === newService.editId
+              ? {
+                  ...s,
+                  title: newService.title,
+                  description: newService.description,
+                  icon: newService.icon,
+                }
+              : s,
+          ),
+        );
+        alert("تم تحديث الخدمة بنجاح");
+      } else {
+        alert("حدث خطأ أثناء تحديث الخدمة");
+      }
+    } else {
+      // Add new
+      const { data, error } = await supabase
+        .from("services")
+        .insert([
+          {
+            title: newService.title,
+            description: newService.description,
+            icon: newService.icon,
+          },
+        ])
+        .select();
+
+      if (!error && data) {
+        setServices([...data, ...services]);
+        alert("تم إضافة الخدمة بنجاح");
+      } else {
+        alert("حدث خطأ أثناء الإضافة");
+      }
     }
     setNewService({
       title: "",
@@ -115,14 +147,14 @@ export default function AdminDashboard() {
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top where form is
   };
 
-  const handleDeleteService = (id) => {
+  const handleDeleteService = async (id) => {
     if (confirm("هل أنت متأكد من حذف هذه الخدمة؟")) {
-      const updatedServices = services.filter((s) => s.id !== id);
-      setServices(updatedServices);
-      localStorage.setItem(
-        "evidence_services",
-        JSON.stringify(updatedServices),
-      );
+      const { error } = await supabase.from("services").delete().eq("id", id);
+      if (!error) {
+        setServices(services.filter((s) => s.id !== id));
+      } else {
+        alert("حدث خطأ أثناء الحذف");
+      }
     }
   };
 
@@ -137,30 +169,61 @@ export default function AdminDashboard() {
   };
 
   // --- Doctors handlers ---
-  const handleAddOrUpdateDoctor = (e) => {
+  const handleAddOrUpdateDoctor = async (e) => {
     e.preventDefault();
     if (newDoctor.isEditing) {
-      const updatedDoctors = doctors.map((d) =>
-        d.id === newDoctor.editId
-          ? { ...newDoctor, id: d.id, isEditing: undefined, editId: undefined }
-          : d,
-      );
-      setDoctors(updatedDoctors);
-      localStorage.setItem("evidence_doctors", JSON.stringify(updatedDoctors));
-      alert("تم تحديث الطبيب بنجاح");
+      const { error } = await supabase
+        .from("doctors")
+        .update({
+          name: newDoctor.name,
+          title: newDoctor.title,
+          image: newDoctor.image,
+          experience: newDoctor.experience,
+          whatsapp: newDoctor.whatsapp,
+          description1: newDoctor.description1,
+          description2: newDoctor.description2,
+        })
+        .eq("id", newDoctor.editId);
+
+      if (!error) {
+        setDoctors(
+          doctors.map((d) =>
+            d.id === newDoctor.editId
+              ? {
+                  ...newDoctor,
+                  id: d.id,
+                  isEditing: undefined,
+                  editId: undefined,
+                }
+              : d,
+          ),
+        );
+        alert("تم تحديث الطبيب بنجاح");
+      } else {
+        alert("حدث خطأ أثناء التحديث");
+      }
     } else {
-      const updatedDoctors = [
-        ...doctors,
-        {
-          ...newDoctor,
-          id: Date.now(),
-          isEditing: undefined,
-          editId: undefined,
-        },
-      ];
-      setDoctors(updatedDoctors);
-      localStorage.setItem("evidence_doctors", JSON.stringify(updatedDoctors));
-      alert("تم إضافة الطبيب بنجاح");
+      const { data, error } = await supabase
+        .from("doctors")
+        .insert([
+          {
+            name: newDoctor.name,
+            title: newDoctor.title,
+            image: newDoctor.image,
+            experience: newDoctor.experience,
+            whatsapp: newDoctor.whatsapp,
+            description1: newDoctor.description1,
+            description2: newDoctor.description2,
+          },
+        ])
+        .select();
+
+      if (!error && data) {
+        setDoctors([...data, ...doctors]);
+        alert("تم إضافة الطبيب بنجاح");
+      } else {
+        alert("حدث خطأ أثناء الإضافة");
+      }
     }
     setNewDoctor({
       name: "",
@@ -186,11 +249,14 @@ export default function AdminDashboard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDeleteDoctor = (id) => {
+  const handleDeleteDoctor = async (id) => {
     if (confirm("هل أنت متأكد من حذف هذا الطبيب؟")) {
-      const updatedDoctors = doctors.filter((d) => d.id !== id);
-      setDoctors(updatedDoctors);
-      localStorage.setItem("evidence_doctors", JSON.stringify(updatedDoctors));
+      const { error } = await supabase.from("doctors").delete().eq("id", id);
+      if (!error) {
+        setDoctors(doctors.filter((d) => d.id !== id));
+      } else {
+        alert("حدث خطأ أثناء الحذف");
+      }
     }
   };
 
@@ -209,21 +275,39 @@ export default function AdminDashboard() {
   };
 
   // --- Images handlers ---
-  const handleAddImage = (e) => {
+  const handleAddImage = async (e) => {
     e.preventDefault();
     if (!newImage) return;
-    const updatedImages = [...images, newImage];
-    setImages(updatedImages);
-    localStorage.setItem("evidence_images", JSON.stringify(updatedImages));
-    setNewImage("");
-    alert("تم إضافة الصورة بنجاح");
+
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .insert([{ image_url: newImage }])
+      .select();
+
+    if (!error && data) {
+      // Re-fetch images or append the new url to state to maintain compatibility with existing mapping structure
+      setImages([data[0].image_url, ...images]);
+      setNewImage("");
+      alert("تم إضافة الصورة بنجاح");
+    } else {
+      alert("حدث خطأ أثناء الإضافة");
+    }
   };
 
-  const handleDeleteImage = (indexToRemove) => {
+  const handleDeleteImage = async (indexToRemove) => {
     if (confirm("هل أنت متأكد من حذف هذه الصورة؟")) {
-      const updatedImages = images.filter((_, i) => i !== indexToRemove);
-      setImages(updatedImages);
-      localStorage.setItem("evidence_images", JSON.stringify(updatedImages));
+      // Find the specific image url to delete
+      const imageUrlToDelete = images[indexToRemove];
+      const { error } = await supabase
+        .from("gallery_images")
+        .delete()
+        .eq("image_url", imageUrlToDelete);
+
+      if (!error) {
+        setImages(images.filter((_, i) => i !== indexToRemove));
+      } else {
+        alert("حدث خطأ أثناء الحذف");
+      }
     }
   };
 
