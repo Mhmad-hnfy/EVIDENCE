@@ -2,22 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 
-const initialDoctors = [
-  {
-    id: 1,
-    name: "د. أحمد محمد",
-    title: "استشاري جراحة وتجميل الأسنان",
-    image:
-      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=800&auto=format&fit=crop",
-    experience: "15",
-    whatsapp: "201000000000",
-    description1:
-      "دكتور أحمد يمتلك خبرة واسعة تمتد لأكثر من 15 عاماً في مجال طب وجراحة الأسنان. تخرج من أعرق الجامعات ويحمل شهادات عليا في تجميل وزراعة الأسنان.",
-    description2:
-      "يهدف دائماً إلى توفير بيئة علاجية مريحة وخالية من الألم، مع استخدام أحدث التقنيات الطبية لضمان أفضل النتائج للمرضى في عيادة EVIDENCE.",
-  },
-];
-
 export default function Doctors() {
   const [doctors, setDoctors] = useState([]);
 
@@ -31,7 +15,7 @@ export default function Doctors() {
       if (!error && data && data.length > 0) {
         setDoctors(data);
       } else {
-        setDoctors(initialDoctors);
+        setDoctors([]);
       }
     };
 
@@ -76,7 +60,10 @@ export default function Doctors() {
               <div className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-gray-900/5">
                 <img
                   className="w-full object-cover aspect-[4/5] hover:scale-105 transition-transform duration-700"
-                  src={doctor.image}
+                  src={
+                    doctor.image ||
+                    "https://placehold.co/600x800/e2e8f0/1e293b?text=Image"
+                  }
                   alt={doctor.name}
                 />
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-gray-900/80 to-transparent p-6">

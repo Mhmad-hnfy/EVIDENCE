@@ -750,7 +750,10 @@ export default function AdminDashboard() {
                 >
                   <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-gray-100">
                     <img
-                      src={doctor.image}
+                      src={
+                        doctor.image ||
+                        "https://placehold.co/150x150/e2e8f0/1e293b?text=Image"
+                      }
                       alt={doctor.name}
                       className="w-full h-full object-cover"
                     />
@@ -943,7 +946,10 @@ export default function AdminDashboard() {
                   className="relative aspect-square rounded-xl overflow-hidden group shadow-sm border border-gray-200"
                 >
                   <img
-                    src={img}
+                    src={
+                      img ||
+                      "https://placehold.co/150x150/e2e8f0/1e293b?text=Image"
+                    }
                     alt={`نتيجة ${index}`}
                     className="w-full h-full object-cover"
                   />

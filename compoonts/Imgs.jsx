@@ -68,7 +68,9 @@ function Imgs() {
           {images.map((img, idx) => (
             <img
               key={idx}
-              src={img}
+              src={
+                img || "https://placehold.co/800x600/e2e8f0/1e293b?text=Image"
+              }
               className="w-full h-[300px] md:h-[600px] object-cover flex-shrink-0"
               alt={`نتيجة ${idx + 1}`}
             />

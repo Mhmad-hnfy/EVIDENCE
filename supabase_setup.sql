@@ -40,16 +40,16 @@ CREATE POLICY "Allow public read access on services" ON public.services FOR SELE
 CREATE POLICY "Allow public read access on doctors" ON public.doctors FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on gallery_images" ON public.gallery_images FOR SELECT USING (true);
 
--- 6. Create Policies for Authenticated Users (Admins) Create/Update/Delete
-CREATE POLICY "Allow authenticated users to insert services" ON public.services FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Allow authenticated users to update services" ON public.services FOR UPDATE TO authenticated USING (true);
-CREATE POLICY "Allow authenticated users to delete services" ON public.services FOR DELETE TO authenticated USING (true);
+-- 6. Create Policies for Public Create/Update/Delete (Since custom auth is used)
+CREATE POLICY "Allow public insert on services" ON public.services FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update on services" ON public.services FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete on services" ON public.services FOR DELETE USING (true);
 
-CREATE POLICY "Allow authenticated users to insert doctors" ON public.doctors FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Allow authenticated users to update doctors" ON public.doctors FOR UPDATE TO authenticated USING (true);
-CREATE POLICY "Allow authenticated users to delete doctors" ON public.doctors FOR DELETE TO authenticated USING (true);
+CREATE POLICY "Allow public insert on doctors" ON public.doctors FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update on doctors" ON public.doctors FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete on doctors" ON public.doctors FOR DELETE USING (true);
 
-CREATE POLICY "Allow authenticated users to insert gallery_images" ON public.gallery_images FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Allow authenticated users to delete gallery_images" ON public.gallery_images FOR DELETE TO authenticated USING (true);
+CREATE POLICY "Allow public insert on gallery_images" ON public.gallery_images FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public delete on gallery_images" ON public.gallery_images FOR DELETE USING (true);
 
--- Note: Make sure to set up Supabase Auth for your admin users separately so they can log in and manage this data!
+-- Note: The policies are now public to match the local custom admin login mechanism.
